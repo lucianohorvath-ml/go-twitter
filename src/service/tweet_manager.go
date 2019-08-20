@@ -7,6 +7,6 @@ func PublishTweet(tweet string) {
 	Tweet = tweet
 }
 
-func main() {
-
+func GetTweet() string {
+	return Tweet
 }

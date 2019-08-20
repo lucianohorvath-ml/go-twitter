@@ -10,7 +10,7 @@ func TestPublishedTweetIsSaved(t *testing.T) {
 
 	service.PublishTweet(tweet)
 
-	if service.Tweet != tweet {
+	if service.GetTweet() != tweet {
 		t.Error("Expected tweet is", tweet)
 	}
 }
