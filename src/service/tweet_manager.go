@@ -6,11 +6,13 @@ import (
 )
 
 var Tweets []*domain.Tweet
+var TweetsByUser map[string][]*domain.Tweet
 var lastId int = 0
 
 // InitializeService resetea el slice de tweets
 func InitializeService() {
-	Tweets = nil
+	Tweets = make([]*domain.Tweet, 0)
+	TweetsByUser = make(map[string][]*domain.Tweet)
 	lastId = 0
 }
 
@@ -26,6 +28,7 @@ func PublishTweet(tweet *domain.Tweet) (int, error) {
 	} else {
 		tweet.Id = lastId + 1
 		Tweets = append(Tweets, tweet)
+		TweetsByUser[tweet.User] = append(TweetsByUser[tweet.User], tweet)
 		lastId++
 	}
 	return tweet.Id, nil
@@ -46,4 +49,12 @@ func GetTweetById(id int) *domain.Tweet {
 		}
 	}
 	return nil
+}
+
+func CountTweetsByUser(user string) int {
+	return len(TweetsByUser[user])
+}
+
+func GetTweetsByUser(user string) []*domain.Tweet {
+	return TweetsByUser[user]
 }

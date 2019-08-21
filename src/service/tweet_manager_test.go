@@ -9,6 +9,7 @@ import (
 // usando struct
 func TestPublishedTweetIsSavedWithStruct(t *testing.T) {
 	// Initialization
+	service.InitializeService()
 	var tweet *domain.Tweet
 	user := "grupoesfera"
 	text := "This is my first tweet"
@@ -148,4 +149,54 @@ func isValidTweet(t *testing.T, tweet *domain.Tweet, id int, user string, text s
 		return false
 	}
 	return true
+}
+
+func TestCanCountTheTweetsSentByAnUser(t *testing.T) {
+	// Initialization
+	service.InitializeService()
+	var tweet, secondTweet, thirdTweet *domain.Tweet
+	user := "grupoesfera"
+	anotherUser := "nick"
+	text := "This is my first tweet"
+	secondText := "This is my second tweet"
+	tweet = domain.NewTweet(user, text)
+	secondTweet = domain.NewTweet(user, secondText)
+	thirdTweet = domain.NewTweet(anotherUser, text)
+	_, _ = service.PublishTweet(tweet)
+	_, _ = service.PublishTweet(secondTweet)
+	_, _ = service.PublishTweet(thirdTweet)
+	// Operation
+	count := service.CountTweetsByUser(user)
+	// Validation
+	if count != 2 {
+		t.Errorf("Expected count is 2 but was %d", count)
+	}
+}
+
+func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
+	service.InitializeService()
+	var tweet, secondTweet, thirdTweet *domain.Tweet
+	var id1, id2 int
+	user := "grupoesfera"
+	anotherUser := "nick"
+	text := "This is my first tweet"
+	secondText := "This is my second tweet"
+	tweet = domain.NewTweet(user, text)
+	secondTweet = domain.NewTweet(user, secondText)
+	thirdTweet = domain.NewTweet(anotherUser, text)
+	id1, _ = service.PublishTweet(tweet)
+	id2, _ = service.PublishTweet(secondTweet)
+	_, _ = service.PublishTweet(thirdTweet)
+
+	// Operation
+	tweets := service.GetTweetsByUser(user)
+
+	// Validation
+	if count := len(tweets); count != 2 {
+		t.Errorf("Expected count is 2 but was %d", count)
+	}
+	firstPublishedTweet := tweets[0]
+	secondPublishedTweet := tweets[1]
+	isValidTweet(t, firstPublishedTweet, id1, user, text)
+	isValidTweet(t, secondPublishedTweet, id2, user, secondText)
 }
