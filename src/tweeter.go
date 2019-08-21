@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/abiosoft/ishell"
+	"github.com/lucianohorvath-ml/go-twitter/src/domain"
 	"github.com/lucianohorvath-ml/go-twitter/src/service"
 )
 
@@ -18,9 +19,15 @@ func main() {
 
 			defer c.ShowPrompt(true)
 
-			c.Print("Write your tweet: ")
+			c.Print("Type your username: ")
 
-			tweet := c.ReadLine()
+			user := c.ReadLine()
+
+			c.Print("Type your tweet: ")
+
+			text := c.ReadLine()
+
+			tweet := domain.NewTweet(user, text)
 
 			service.PublishTweet(tweet)
 
