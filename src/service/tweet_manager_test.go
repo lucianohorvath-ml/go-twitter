@@ -6,16 +6,6 @@ import (
 	"testing"
 )
 
-//func TestPublishedTweetIsSaved(t *testing.T) {
-//	var tweet string = "This is my first tweet"
-//
-//	service.PublishTweet(tweet)
-//
-//	if service.GetTweet() != tweet {
-//		t.Error("Expected tweet is", tweet)
-//	}
-//}
-
 // usando struct
 func TestPublishedTweetIsSavedWithStruct(t *testing.T) {
 	// Initialization
@@ -25,7 +15,7 @@ func TestPublishedTweetIsSavedWithStruct(t *testing.T) {
 	tweet = domain.NewTweet(user, text)
 
 	// Operation
-	service.PublishTweet(tweet)
+	_, _ = service.PublishTweet(tweet)
 
 	// Validation
 	publishedTweet := service.GetTweet()
@@ -50,7 +40,7 @@ func TestTweetWithoutUserIsNotPublished(t *testing.T) {
 
 	// Operation
 	var err error
-	err = service.PublishTweet(tweet)
+	_, err = service.PublishTweet(tweet)
 
 	// Validation
 	if err == nil {
@@ -71,7 +61,7 @@ func TestTweetWithoutTextIsNotPublished(t *testing.T) {
 
 	// Operation
 	var err error
-	err = service.PublishTweet(tweet)
+	_, err = service.PublishTweet(tweet)
 
 	// Validation
 	if err == nil {
@@ -90,11 +80,11 @@ func TestTweetWhichExceeding140CharactersIsNotPublished(t *testing.T) {
 	text := "Lorem ipsum dolor sit amet consectetur adipiscing elit donec, " +
 		"risus natoque diam mauris felis maecenas placerat turpis luctus, " +
 		"porttitor nam magna sa."
-		tweet = domain.NewTweet(user, text)
+	tweet = domain.NewTweet(user, text)
 
 	// Operation
 	var err error
-	err = service.PublishTweet(tweet)
+	_, err = service.PublishTweet(tweet)
 
 	// Validation
 	if err == nil {
@@ -109,13 +99,18 @@ func TestTweetWhichExceeding140CharactersIsNotPublished(t *testing.T) {
 func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 	// Initialization
 	service.InitializeService()
-	var tweet, secondTweet *domain.Tweet // Fill the tweets with data
+	var tweet, secondTweet *domain.Tweet
+	user := "Luciano"
+	text := "Hola!"
+	user2 := "Marcos"
+	text2 := "Chau"
+	tweet = domain.NewTweet(user, text)
+	secondTweet = domain.NewTweet(user2, text2)
+	var id, id2 int
 
-	// Operation
-	service.PublishTweet(tweet)
-	service.PublishTweet(secondTweet)
+	id, _ = service.PublishTweet(tweet)
+	id2, _ = service.PublishTweet(secondTweet)
 
-	// Validation
 	publishedTweets := service.GetTweets()
 	if len(publishedTweets) != 2 {
 		t.Errorf("Expected size is 2 but was %d", len(publishedTweets))
@@ -123,8 +118,34 @@ func TestCanPublishAndRetrieveMoreThanOneTweet(t *testing.T) {
 	}
 	firstPublishedTweet := publishedTweets[0]
 	secondPublishedTweet := publishedTweets[1]
-	if !isValidTweet(t, firstPublishedTweet, user, text) {
+	if !isValidTweet(t, firstPublishedTweet, id, user, text) {
 		return
 	}
-	// Same for secondPublishedTweet
+	if !isValidTweet(t, secondPublishedTweet, id2, user2, text2) {
+		return
+	}
+}
+
+func TestCanRetrieveTweetById(t *testing.T) {
+	service.InitializeService()
+
+	var tweet *domain.Tweet
+	var id int
+
+	user := "grupoesfera"
+	text := "This is my first tweet"
+	tweet = domain.NewTweet(user, text)
+	id, _ = service.PublishTweet(tweet)
+
+	publishedTweet := service.GetTweetById(id)
+
+	isValidTweet(t, publishedTweet, id, user, text)
+}
+
+func isValidTweet(t *testing.T, tweet *domain.Tweet, id int, user string, text string) bool {
+	if !(tweet.Id == id && tweet.User == user && tweet.Text == text) {
+		t.Error("El tweet no es válido.")
+		return false
+	}
+	return true
 }
