@@ -19,7 +19,9 @@ func InitializeService() {
 func PublishTweet(tweet *domain.Tweet) (int, error) {
 	// En Go, se estila hacer el return al detectar el error, para cortar el flujo, en vez de
 	// declarar error arriba y hacer el return abajo de tod o.
-	if tweet.User == "" {
+
+	// todo: verificar que el usuario esta registrado
+	if tweet.User.Nombre == "" {
 		return 0, fmt.Errorf("user is required")
 	} else if tweet.Text == "" {
 		return 0, fmt.Errorf("text is required")
@@ -28,7 +30,7 @@ func PublishTweet(tweet *domain.Tweet) (int, error) {
 	} else {
 		tweet.Id = lastId + 1
 		Tweets = append(Tweets, tweet)
-		TweetsByUser[tweet.User] = append(TweetsByUser[tweet.User], tweet)
+		TweetsByUser[tweet.User.Nombre] = append(TweetsByUser[tweet.User.Nombre], tweet)
 		lastId++
 	}
 	return tweet.Id, nil
@@ -51,10 +53,10 @@ func GetTweetById(id int) *domain.Tweet {
 	return nil
 }
 
-func CountTweetsByUser(user string) int {
-	return len(TweetsByUser[user])
+func CountTweetsByUser(username string) int {
+	return len(TweetsByUser[username])
 }
 
-func GetTweetsByUser(user string) []*domain.Tweet {
-	return TweetsByUser[user]
+func GetTweetsByUser(username string) []*domain.Tweet {
+	return TweetsByUser[username]
 }

@@ -200,3 +200,9 @@ func TestCanRetrieveTheTweetsSentByAnUser(t *testing.T) {
 	isValidTweet(t, firstPublishedTweet, id1, user, text)
 	isValidTweet(t, secondPublishedTweet, id2, user, secondText)
 }
+
+
+// Ejercicios extra
+func TestUserCanRegister(t *testing.T){
+
+}
