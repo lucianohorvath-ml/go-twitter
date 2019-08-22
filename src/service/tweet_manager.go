@@ -18,15 +18,15 @@ func InitializeService() {
 
 func PublishTweet(tweet *domain.Tweet) (int, error) {
 	// En Go, se estila hacer el return al detectar el error, para cortar el flujo, en vez de
-	// declarar error arriba y hacer el return abajo de tod o.
-
-	// todo: verificar que el usuario esta registrado
+	// declarar error arriba y hacer el return abajo de todo.
 	if tweet.User.Nombre == "" {
 		return 0, fmt.Errorf("user is required")
 	} else if tweet.Text == "" {
 		return 0, fmt.Errorf("text is required")
 	} else if len(tweet.Text) > 140 {
 		return 0, fmt.Errorf("text can not exceed 140 characters")
+	} else if !IsRegistered(tweet.User) {
+		return 0, fmt.Errorf("user must be registered")
 	} else {
 		tweet.Id = lastId + 1
 		Tweets = append(Tweets, tweet)
