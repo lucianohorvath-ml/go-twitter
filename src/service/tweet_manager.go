@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"github.com/lucianohorvath-ml/go-twitter/src/domain"
+	"strings"
 )
 
 type TweetManager struct {
@@ -69,4 +70,17 @@ func (tm *TweetManager) CountTweetsByUser(username string) int {
 
 func (tm *TweetManager) GetTweetsByUser(username string) []domain.Tweet {
 	return tm.tweetsByUser[username]
+}
+
+func (tm *TweetManager) SearchTweetsContaining(search string, tweetsChannel chan domain.Tweet) {
+	// s es el texto de búsqueda
+	// tweets es un canal cuyos mensajes son estructuras que implementan la interfaz Tweet
+	go func() {
+		for _, tweet := range tm.tweets {
+			if strings.Contains(tweet.GetText(), search) {
+				tweetsChannel <- tweet
+			}
+		}
+		close(tweetsChannel)
+	}()
 }

@@ -23,8 +23,8 @@ func TestTextTweetPrintsUserAndText(t *testing.T) {
 func TestImageTweetPrintsUserTextAndImageURL(t *testing.T) {
 	// Initialization
 	user := domain.NewUser("esfera", "e", "e", "1")
-	textTweet := domain.NewTextTweet(user, "primer tweet")
-	tweet := domain.NewImageTweet(textTweet, "This is my image "+
+	textTweet := domain.NewTextTweet(user, "This is my image")
+	tweet := domain.NewImageTweet(textTweet,
 		"http://www.grupoesfera.com.ar/common/img/grupoesfera.png")
 
 	// Operation
@@ -50,7 +50,7 @@ func TestQuoteTweetPrintsUserTextAndQuotedTweet(t *testing.T) {
 	text := tweet.PrintTweet()
 
 	// Validation
-	expectedText := `@nick: Awesome "@lucas: hola chicos"`
+	expectedText := `@nick: estoy citando un tweet "@lucas: hola chicos"`
 	if text != expectedText {
 		t.Errorf("Expected text is: %s", expectedText)
 	}
