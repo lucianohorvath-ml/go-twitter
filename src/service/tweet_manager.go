@@ -5,58 +5,68 @@ import (
 	"github.com/lucianohorvath-ml/go-twitter/src/domain"
 )
 
-var Tweets []*domain.Tweet
-var TweetsByUser map[string][]*domain.Tweet
-var lastId int = 0
-
-// InitializeService resetea el slice de tweets
-func InitializeService() {
-	Tweets = make([]*domain.Tweet, 0)
-	TweetsByUser = make(map[string][]*domain.Tweet)
-	lastId = 0
+type TweetManager struct {
+	tweets       []domain.Tweet
+	tweetsByUser map[string][]domain.Tweet
+	lastId       int
+	UserManager  *UserManager
+	writer       TweetWriter
 }
 
-func PublishTweet(tweet *domain.Tweet) (int, error) {
+func NewTweetManager(writer TweetWriter) *TweetManager {
+	tweetManager := new(TweetManager)
+	tweetManager.tweets = make([]domain.Tweet, 0)
+	tweetManager.tweetsByUser = make(map[string][]domain.Tweet)
+	tweetManager.lastId = 0
+	tweetManager.UserManager = NewUserManager()
+	tweetManager.writer = writer
+
+	return tweetManager
+}
+
+func (tm *TweetManager) PublishTweet(tweet domain.Tweet) (int, error) {
 	// En Go, se estila hacer el return al detectar el error, para cortar el flujo, en vez de
 	// declarar error arriba y hacer el return abajo de todo.
-	if tweet.User.Nombre == "" {
+
+	if tweet.GetUser().Nombre == "" {
 		return 0, fmt.Errorf("user is required")
-	} else if tweet.Text == "" {
+	} else if tweet.GetText() == "" {
 		return 0, fmt.Errorf("text is required")
-	} else if len(tweet.Text) > 140 {
+	} else if len(tweet.GetText()) > 140 {
 		return 0, fmt.Errorf("text can not exceed 140 characters")
-	} else if !IsRegistered(tweet.User) {
+	} else if !tm.UserManager.IsRegistered(tweet.GetUser()) {
 		return 0, fmt.Errorf("user must be registered")
 	} else {
-		tweet.Id = lastId + 1
-		Tweets = append(Tweets, tweet)
-		TweetsByUser[tweet.User.Nombre] = append(TweetsByUser[tweet.User.Nombre], tweet)
-		lastId++
+		tweet.SetId(tm.lastId + 1)
+		tm.tweets = append(tm.tweets, tweet)
+		tm.tweetsByUser[tweet.GetUser().Nombre] = append(tm.tweetsByUser[tweet.GetUser().Nombre], tweet)
+		tm.lastId++
+		tm.writer.Write(tweet)
 	}
-	return tweet.Id, nil
+	return tweet.GetId(), nil
 }
 
-func GetTweets() []*domain.Tweet {
-	return Tweets
+func (tm *TweetManager) GetTweets() []domain.Tweet {
+	return tm.tweets
 }
 
-func GetTweet() *domain.Tweet {
-	return Tweets[0]
+func (tm *TweetManager) GetTweet() domain.Tweet {
+	return tm.tweets[0]
 }
 
-func GetTweetById(id int) *domain.Tweet {
-	for i := 0; i < len(Tweets); i++ {
-		if Tweets[i].Id == id {
-			return Tweets[i]
+func (tm *TweetManager) GetTweetById(id int) domain.Tweet {
+	for i := 0; i < len(tm.tweets); i++ {
+		if tm.tweets[i].GetId() == id {
+			return tm.tweets[i]
 		}
 	}
 	return nil
 }
 
-func CountTweetsByUser(username string) int {
-	return len(TweetsByUser[username])
+func (tm *TweetManager) CountTweetsByUser(username string) int {
+	return len(tm.tweetsByUser[username])
 }
 
-func GetTweetsByUser(username string) []*domain.Tweet {
-	return TweetsByUser[username]
+func (tm *TweetManager) GetTweetsByUser(username string) []domain.Tweet {
+	return tm.tweetsByUser[username]
 }
