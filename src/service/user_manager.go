@@ -25,3 +25,7 @@ func (userManager *UserManager) IsRegistered(user *domain.User) bool {
 	}
 	return false
 }
+
+func (userManager *UserManager) GetUsers() []*domain.User {
+	return userManager.registeredUsers
+}
